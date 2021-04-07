@@ -28,7 +28,7 @@ def three_body_problem(N, T_end):
     # v[0,1,:] = np.array([5,1.4])
     # v[0,2,:] = np.array([3,3.5])
 
-    #Tester initialhastighet på 0
+    #Tester initialhastighet på 0, enhet er AU/yr
     v[0,0,:] = np.array([0,0])
     v[0,1,:] = np.array([0,0])
     v[0,2,:] = np.array([0,0])
@@ -85,10 +85,11 @@ def plot_v_r(N, T_end):
 
 def doppler_shift(v, f_s):
     #Returnerer f_obs, altså frekvensen en observatør mottar
-    c = 1 #Lysets hastighet, vurder å endre senere
+    #c = 1 #Lysets hastighet, vurder å endre senere
+    c = 1
     return f_s*np.sqrt((1-v/c)/(1+v/c))
 
-def fourier_transform():
+def fourier_transform(f_s, N, T_end):
     '''
     samplerate, data = wavfile.read('/Users/sat19/Koder/BØLGE/cuckoo.wav')
     x_n = data[:, 0] # select one out of two channels
@@ -104,9 +105,35 @@ def fourier_transform():
     freq = np.fft.fftfreq(N, dt)
     '''
 
+    r, v, t = three_body_problem(N, T_end)
+    x_n = doppler_shift(v[:,0,0], f_s)  #x_n er frekvensen som blir dopplerforskjøvet mens planeten beveger seg
+    X_k = (1/N)*np.fft.fft(x_n)
+    freq = (1/T_end)*np.linspace(0, N-1, N)
+
+    #x_n er samplet signal med tilhørende t. Kan evt vurdere å slice litt.
+
+    fig, ax = plt.subplots(2,1, figsize = (13, 6))
+    ax[0].set_title("Tidsserien", size=15)
+    ax[0].grid(1)
+    ax[1].grid(1)
+    ax[0].plot(t, x_n, color='blue', linestyle='solid')
+    ax[0].set_xlabel('t [enhet????]')
+    ax[0].set_ylabel('x_n')
+    plt.subplots_adjust(hspace = 0.5)
+    #
+    ax[1].set_title("Frekvensrommet", size=15)
+    ax[1].bar(freq, np.abs(X_k), color='black', width=0.5)
+    ax[1].set_xlabel('f [Hz]')
+    ax[1].set_ylabel('X_k')
+    #ax[1].set_xlim([-plot_lim, plot_lim])
+    plt.show()
+
+
 
 N = 75000 #tidssteg
-T_end = 365 #dager
+T_end = 2 #år
+f_s = 980e+6 #980 MHz
 
-plot_position(N, T_end)
-plot_v_r(N, T_end)
+# plot_position(N, T_end)
+# plot_v_r(N, T_end)
+fourier_transform(f_s, N, T_end)
