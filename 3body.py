@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def three_body_problem(N, T_end):
     solar_mass = 1.9891e+30
     G = 39.4784 #Gravitational constant in solar system units [AU^3/yr^2/m_sun]
@@ -10,8 +11,10 @@ def three_body_problem(N, T_end):
     m0 = 1.1
     m1 = 0.907
     m2 = 0.123
+    #dt = 0.00001
     #dt = 0.000001 #Tidssteg
-    dt = 0.0000001 #Tidssteg
+    dt = 0.0000001 #Tidssteg DETTE BRUKER JEG NÅ
+    #N = int(T_end/dt)
     t = np.linspace(0, T_end, N)
 
     #N iterasjoner, 3 legemer, 2 dimensjoner (x,y)
@@ -85,30 +88,36 @@ def plot_v_r(N, T_end):
 
 def doppler_shift(v, f_s):
     #Returnerer f_obs, altså frekvensen en observatør mottar
-    #c = 1 #Lysets hastighet, vurder å endre senere
-    c = 1
+    c = 63239.7 #Lysets hastighet i AU/år
     return f_s*np.sqrt((1-v/c)/(1+v/c))
+
+def plot_doppler(f_s, N, T_end, planet_nr):
+    r, v, t = three_body_problem(N, T_end)
+    f_dopp = doppler_shift(v[:,planet_nr,0], f_s)
+    plt.plot(t, f_dopp)
+    #plt.show()
+
 
 def fourier_transform(f_s, N, T_end):
     '''
-    samplerate, data = wavfile.read('/Users/sat19/Koder/BØLGE/cuckoo.wav')
-    x_n = data[:, 0] # select one out of two channels
-    N = data.shape[0]
-    f_samp = samplerate # Hz
-    T = N / f_samp # s
-    print(f"samplerate = {samplerate} Hz")
-    print(f"T = {T} s")
-    dt = 1/f_samp
-    t = dt*np.linspace(0., N, data.shape[0])
+    #Fra oblig 3 oppg1.py
+    f4 = 1300
+    f_samp = 1e3    #Samplingsfrekvens
+    T = 1           #Samplingstid
+    dt = T/f_samp
+    N = int(T/dt)   #Antall samplinger
+    t = np.linspace(0, T, N)
 
-    X_k = (1/N)*np.fft.fft(x_n)
-    freq = np.fft.fftfreq(N, dt)
+    X_k = (1/N)*np.fft.fft(g(f, t))
+    freq = (1/T)*np.linspace(0, N-1, N)
     '''
 
     r, v, t = three_body_problem(N, T_end)
     x_n = doppler_shift(v[:,0,0], f_s)  #x_n er frekvensen som blir dopplerforskjøvet mens planeten beveger seg
+    #x_n = x_n_func(v[:,0,0], f_s, t)
     X_k = (1/N)*np.fft.fft(x_n)
     freq = (1/T_end)*np.linspace(0, N-1, N)
+
 
     #x_n er samplet signal med tilhørende t. Kan evt vurdere å slice litt.
 
@@ -131,9 +140,13 @@ def fourier_transform(f_s, N, T_end):
 
 
 N = 75000 #tidssteg
-T_end = 2 #år
-f_s = 980e+6 #980 MHz
+T_end = 1 #år
+f_s = 980 #980 MHz
 
-# plot_position(N, T_end)
+#plot_position(N, T_end)
 # plot_v_r(N, T_end)
-fourier_transform(f_s, N, T_end)
+plot_doppler(f_s, N, T_end, 0)
+plot_doppler(f_s, N, T_end, 1)
+plot_doppler(f_s, N, T_end, 2)
+plt.show()
+#fourier_transform(f_s, N, T_end)
