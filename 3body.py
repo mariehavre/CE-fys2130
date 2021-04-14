@@ -78,13 +78,11 @@ def plot_position(N, T_end):
     plt.legend()
     plt.show()
 
-
 def plot_v_r(N, T_end):
     r, v, t = three_body_problem(N, T_end)
 
     plt.plot(t, v[:,0,0])
     plt.show()
-
 
 def doppler_shift(v, f_s):
     #Returnerer f_obs, altså frekvensen en observatør mottar
@@ -95,49 +93,16 @@ def plot_doppler(f_s, N, T_end, planet_nr):
     r, v, t = three_body_problem(N, T_end)
     f_dopp = doppler_shift(v[:,planet_nr,0], f_s)
     plt.plot(t, f_dopp)
-    #plt.show()
+    #plt.show() #For å vise bare én planet av gangen
 
+def interferens(a, lmbda, theta_arr):
+    alpha = (np.pi*a/lmbda)*np.sin(theta_arr)
+    return (np.sin(alpha)/alpha)**2
 
-def fourier_transform(f_s, N, T_end):
-    '''
-    #Fra oblig 3 oppg1.py
-    f4 = 1300
-    f_samp = 1e3    #Samplingsfrekvens
-    T = 1           #Samplingstid
-    dt = T/f_samp
-    N = int(T/dt)   #Antall samplinger
-    t = np.linspace(0, T, N)
-
-    X_k = (1/N)*np.fft.fft(g(f, t))
-    freq = (1/T)*np.linspace(0, N-1, N)
-    '''
-
-    r, v, t = three_body_problem(N, T_end)
-    x_n = doppler_shift(v[:,0,0], f_s)  #x_n er frekvensen som blir dopplerforskjøvet mens planeten beveger seg
-    #x_n = x_n_func(v[:,0,0], f_s, t)
-    X_k = (1/N)*np.fft.fft(x_n)
-    freq = (1/T_end)*np.linspace(0, N-1, N)
-
-
-    #x_n er samplet signal med tilhørende t. Kan evt vurdere å slice litt.
-
-    fig, ax = plt.subplots(2,1, figsize = (13, 6))
-    ax[0].set_title("Tidsserien", size=15)
-    ax[0].grid(1)
-    ax[1].grid(1)
-    ax[0].plot(t, x_n, color='blue', linestyle='solid')
-    ax[0].set_xlabel('t [enhet????]')
-    ax[0].set_ylabel('x_n')
-    plt.subplots_adjust(hspace = 0.5)
-    #
-    ax[1].set_title("Frekvensrommet", size=15)
-    ax[1].bar(freq, np.abs(X_k), color='black', width=0.5)
-    ax[1].set_xlabel('f [Hz]')
-    ax[1].set_ylabel('X_k')
-    #ax[1].set_xlim([-plot_lim, plot_lim])
+def plot_interferens(a, lmbda, theta):
+    theta_arr = np.linspace(-theta, theta, 1000)
+    plt.plot(theta, interferens(a, lmbda, theta_arr))
     plt.show()
-
-
 
 N = 75000 #tidssteg
 T_end = 1 #år
@@ -149,4 +114,3 @@ plot_doppler(f_s, N, T_end, 0)
 plot_doppler(f_s, N, T_end, 1)
 plot_doppler(f_s, N, T_end, 2)
 plt.show()
-#fourier_transform(f_s, N, T_end)
