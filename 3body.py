@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def three_body_problem(N, T_end):
+def three_body_problem(N):
     solar_mass = 1.9891e+30
     G = 39.4784 #Gravitational constant in solar system units [AU^3/yr^2/m_sun]
     #G = 1
@@ -14,8 +14,7 @@ def three_body_problem(N, T_end):
     #dt = 0.00001
     #dt = 0.000001 #Tidssteg
     dt = 0.0000001 #Tidssteg DETTE BRUKER JEG NÅ
-    #N = int(T_end/dt)
-    T_end = N*dt #KAN FUNGERE?
+    T_end = N*dt #Sluttid
     t = np.linspace(0, T_end, N)
 
     #N iterasjoner, 3 legemer, 2 dimensjoner (x,y)
@@ -65,8 +64,8 @@ def three_body_problem(N, T_end):
 
     return r, v, t
 
-def plot_position(N, T_end):
-    r, v, t = three_body_problem(N, T_end)
+def plot_position(N):
+    r, v, t = three_body_problem(N)
 
     planet_names = ['Alpha Centauri A', 'Alpha Centauri B', 'Proxima Centauri']
     for i in range(3):
@@ -77,9 +76,9 @@ def plot_position(N, T_end):
     plt.legend()
     plt.show()
 
-def plot_v_r(N, T_end):
+def plot_v_r(N):
     #Strengt tatt ikke nødvendig?
-    r, v, t = three_body_problem(N, T_end)
+    r, v, t = three_body_problem(N)
 
     plt.plot(t, v[:,0,0])
     plt.show()
@@ -87,50 +86,58 @@ def plot_v_r(N, T_end):
 def doppler_shift(v, f_s):
     #Returnerer f_obs, altså frekvensen en observatør mottar
     c = 63239.7 #Lysets hastighet i AU/år
-    return f_s*np.sqrt((1-v/c)/(1+v/c))
+    f = f_s*np.sqrt((1-v/c)/(1+v/c))
+    return f
 
-def plot_doppler(f_s, N, T_end, planet_nr):
-    r, v, t = three_body_problem(N, T_end)
+def plot_doppler(f_s, N, planet_nr):
+    r, v, t = three_body_problem(N)
     f_dopp = doppler_shift(v[:,planet_nr,0], f_s)
     plt.plot(t, f_dopp)
     #plt.show() #For å vise bare én planet av gangen
 
-def f_to_lambda(freq):
+def f_to_lambda(v, f_s):
+    freq = doppler_shift(v, f_s)
     f = freq*1e+6 #Går fra MHz til Hz
     c = 3e+8
     lmbda = c/f
-    lmbda_mu = lmbda/1e-6 #Vil ha bølgelengden i mikrometer
-    return lmbda_mu
+    return lmbda
 
-def refractive_index(lmbda_mu):
+def refractive_index(v, f_s):
+    lmbda_mu = f_to_lambda(v, f_s)
     #Konstanter tilhørende borosilicate glass BK7
     A = 1.5046
     B = 0.0042 #mikrometer^2
-    n = A + B/lmbda_mu**2
+    n = A + B/(lmbda_mu**2)
     return n
 
-def focal_length(lmbda_mu):
+def focal_length(v, f_s):
     R1 = 0.5
     R2 = 0.7
-    n = refractive_index(lmbda)
-    f = 1/(n-1)*(1/R1 - 1/R2) #Endret fra 1/f
-    return f
+    n = refractive_index(v, f_s)
+    #f = 1/(n-1)*(1/R1 - 1/R2) #Endret fra 1/f
+    return (n-1)*(1/R1 - 1/R2) #1/f
 
 
 N = 75000 #tidssteg
 f_s = 980 #980 MHz
 
-'''
 #Lagrer arrayene
-r, v, t = three_body_problem(N, T_end)
-np.save('posisjon.npy', r)
-np.save('hastighet.npy', v)
-np.save('tid.npy', t)
-'''
+# r, v, t = three_body_problem(N)
+# np.save('posisjon.npy', r)
+# np.save('hastighet.npy', v)
+# np.save('tid.npy', t)
 
+v = np.load('hastighet.npy')
+t = np.load('tid.npy')
 
-plot_position(N, T_end)
-# plot_doppler(f_s, N, T_end, 0)
-# plot_doppler(f_s, N, T_end, 1)
-# plot_doppler(f_s, N, T_end, 2)
+plt.plot(t, focal_length(v[:,0,0], f_s))
+plt.xlabel("Tid [år]")
+plt.ylabel("Brennvidde (1/f)")
+print(f_to_lambda(v[:,0,0], f_s))
+plt.show()
+
+#plot_position(N)
+# plot_doppler(f_s, N, 0)
+# plot_doppler(f_s, N, 1)
+# plot_doppler(f_s, N, 2)
 # plt.show()
