@@ -15,6 +15,7 @@ def three_body_problem(N, T_end):
     #dt = 0.000001 #Tidssteg
     dt = 0.0000001 #Tidssteg DETTE BRUKER JEG NÅ
     #N = int(T_end/dt)
+    #T_end = N*dt #KAN FUNGERE?
     t = np.linspace(0, T_end, N)
 
     #N iterasjoner, 3 legemer, 2 dimensjoner (x,y)
@@ -64,8 +65,6 @@ def three_body_problem(N, T_end):
 
     return r, v, t
 
-#three_body_problem(75000, 365) #Her slipper ikke planetene unna enda
-
 def plot_position(N, T_end):
     r, v, t = three_body_problem(N, T_end)
 
@@ -79,6 +78,7 @@ def plot_position(N, T_end):
     plt.show()
 
 def plot_v_r(N, T_end):
+    #Strengt tatt ikke nødvendig?
     r, v, t = three_body_problem(N, T_end)
 
     plt.plot(t, v[:,0,0])
@@ -95,22 +95,34 @@ def plot_doppler(f_s, N, T_end, planet_nr):
     plt.plot(t, f_dopp)
     #plt.show() #For å vise bare én planet av gangen
 
-def interferens(a, lmbda, theta_arr):
-    alpha = (np.pi*a/lmbda)*np.sin(theta_arr)
-    return (np.sin(alpha)/alpha)**2
+def f_to_lambda(freq):
+    f = freq*1e+6 #Går fra MHz til Hz
+    c = 3e+8
+    lmbda = c/f
+    lmbda_mu = lmbda/1e-6 #Vil ha bølgelengden i mikrometer
+    return lmbda_mu
 
-def plot_interferens(a, lmbda, theta):
-    theta_arr = np.linspace(-theta, theta, 1000)
-    plt.plot(theta, interferens(a, lmbda, theta_arr))
-    plt.show()
+def refractive_index(lmbda_mu):
+    #Konstanter tilhørende borosilicate glass BK7
+    A = 1.5046
+    B = 0.0042 #mikrometer^2
+    n = A + B/lmbda_mu**2
+    return n
+
+def focal_length(lmbda_mu):
+    R1 = 0.5
+    R2 = 0.7
+    n = refractive_index(lmbda)
+    f = 1/(n-1)*(1/R1 - 1/R2) #Endret fra 1/f
+    return f
+
 
 N = 75000 #tidssteg
 T_end = 1 #år
 f_s = 980 #980 MHz
 
 #plot_position(N, T_end)
-# plot_v_r(N, T_end)
-plot_doppler(f_s, N, T_end, 0)
-plot_doppler(f_s, N, T_end, 1)
-plot_doppler(f_s, N, T_end, 2)
-plt.show()
+# plot_doppler(f_s, N, T_end, 0)
+# plot_doppler(f_s, N, T_end, 1)
+# plot_doppler(f_s, N, T_end, 2)
+# plt.show()
