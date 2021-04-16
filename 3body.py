@@ -37,14 +37,22 @@ def three_body_problem(N):
 
     #Integrerer med leap-frog-metoden
     for i in range(N-1):
-        a[i,0,:] = -G*(m1*(r[i,0,:] - r[i,1,:])/np.linalg.norm(r[i,0,:] - r[i,1,:])**3 + m2*(r[i,0,:] - r[i,2,:])/np.linalg.norm(r[i,0,:] - r[i,2,:])**3)
-        a[i,1,:] = -G*(m2*(r[i,1,:] - r[i,2,:])/np.linalg.norm(r[i,1,:] - r[i,2,:])**3 + m0*(r[i,1,:] - r[i,0,:])/np.linalg.norm(r[i,1,:] - r[i,0,:])**3)
-        a[i,2,:] = -G*(m0*(r[i,2,:] - r[i,0,:])/np.linalg.norm(r[i,2,:] - r[i,0,:])**3 + m1*(r[i,2,:] - r[i,1,:])/np.linalg.norm(r[i,2,:] - r[i,1,:])**3)
-        r[i+1,:,:] = r[i,:,:] + v[i,:,:]*dt + 0.5*a[i,:,:]*dt**2
-        a[i+1,0,:] = -G*(m1*(r[i+1,0,:] - r[i+1,1,:])/np.linalg.norm(r[i+1,0,:] - r[i+1,1,:])**3 + m2*(r[i+1,0,:] - r[i+1,2,:])/np.linalg.norm(r[i+1,0,:] - r[i+1,2,:])**3)
-        a[i+1,1,:] = -G*(m2*(r[i+1,1,:] - r[i+1,2,:])/np.linalg.norm(r[i+1,1,:] - r[i+1,2,:])**3 + m0*(r[i+1,1,:] - r[i+1,0,:])/np.linalg.norm(r[i+1,1,:] - r[i+1,0,:])**3)
-        a[i+1,2,:] = -G*(m0*(r[i+1,2,:] - r[i+1,0,:])/np.linalg.norm(r[i+1,2,:] - r[i+1,0,:])**3 + m1*(r[i+1,2,:] - r[i+1,1,:])/np.linalg.norm(r[i+1,2,:] - r[i+1,1,:])**3)
-        v[i+1,:,:] = v[i,:,:] + 0.5*(a[i,:,:] + a[i+1,:,:])*dt
+        # a[i,0,:] = -G*(m1*(r[i,0,:] - r[i,1,:])/np.linalg.norm(r[i,0,:] - r[i,1,:])**3 + m2*(r[i,0,:] - r[i,2,:])/np.linalg.norm(r[i,0,:] - r[i,2,:])**3)
+        # a[i,1,:] = -G*(m2*(r[i,1,:] - r[i,2,:])/np.linalg.norm(r[i,1,:] - r[i,2,:])**3 + m0*(r[i,1,:] - r[i,0,:])/np.linalg.norm(r[i,1,:] - r[i,0,:])**3)
+        # a[i,2,:] = -G*(m0*(r[i,2,:] - r[i,0,:])/np.linalg.norm(r[i,2,:] - r[i,0,:])**3 + m1*(r[i,2,:] - r[i,1,:])/np.linalg.norm(r[i,2,:] - r[i,1,:])**3)
+        # r[i+1,:,:] = r[i,:,:] + v[i,:,:]*dt + 0.5*a[i,:,:]*dt**2
+        # a[i+1,0,:] = -G*(m1*(r[i+1,0,:] - r[i+1,1,:])/np.linalg.norm(r[i+1,0,:] - r[i+1,1,:])**3 + m2*(r[i+1,0,:] - r[i+1,2,:])/np.linalg.norm(r[i+1,0,:] - r[i+1,2,:])**3)
+        # a[i+1,1,:] = -G*(m2*(r[i+1,1,:] - r[i+1,2,:])/np.linalg.norm(r[i+1,1,:] - r[i+1,2,:])**3 + m0*(r[i+1,1,:] - r[i+1,0,:])/np.linalg.norm(r[i+1,1,:] - r[i+1,0,:])**3)
+        # a[i+1,2,:] = -G*(m0*(r[i+1,2,:] - r[i+1,0,:])/np.linalg.norm(r[i+1,2,:] - r[i+1,0,:])**3 + m1*(r[i+1,2,:] - r[i+1,1,:])/np.linalg.norm(r[i+1,2,:] - r[i+1,1,:])**3)
+        # v[i+1,:,:] = v[i,:,:] + 0.5*(a[i,:,:] + a[i+1,:,:])*dt
+        # t[i+1] = t[i] + dt
+
+        #Euler-Cromer
+        a[i+1,0,:] = -G*(m1*(r[i,0,:] - r[i,1,:])/np.linalg.norm(r[i,0,:] - r[i,1,:])**3 + m2*(r[i,0,:] - r[i,2,:])/np.linalg.norm(r[i,0,:] - r[i,2,:])**3)
+        a[i+1,1,:] = -G*(m2*(r[i,1,:] - r[i,2,:])/np.linalg.norm(r[i,1,:] - r[i,2,:])**3 + m0*(r[i,1,:] - r[i,0,:])/np.linalg.norm(r[i,1,:] - r[i,0,:])**3)
+        a[i+1,2,:] = -G*(m0*(r[i,2,:] - r[i,0,:])/np.linalg.norm(r[i,2,:] - r[i,0,:])**3 + m1*(r[i,2,:] - r[i,1,:])/np.linalg.norm(r[i,2,:] - r[i,1,:])**3)
+        v[i+1,:,:] = v[i,:,:] + a[i+1,:,:]*dt
+        r[i+1,:,:] = r[i,:,:] + v[i+1,:,:]*dt
         t[i+1] = t[i] + dt
 
     return r, v, t
@@ -95,7 +103,7 @@ def focal_length(v, f_s):
     n = refractive_index(v, f_s)
     return (n-1)*(1/R1 - 1/R2) #1/f
 
-N = 75000 #tidssteg
+N = 69000 #tidssteg
 f_s = 980 #980 MHz
 
 #Lagrer arrayene
@@ -104,24 +112,24 @@ f_s = 980 #980 MHz
 # np.save('hastighet.npy', v)
 # np.save('tid.npy', t)
 
-v = np.load('hastighet.npy')
-t = np.load('tid.npy')
+# v = np.load('hastighet.npy')
+# t = np.load('tid.npy')
 
-# plot_position(N)
+plot_position(N)
 # plot_doppler(f_s, N, 0)
 # plot_doppler(f_s, N, 1)
 # plot_doppler(f_s, N, 2)
 # plt.show()
 
-plt.plot(t, focal_length(v[:,0,0], f_s))
-plt.xlabel("Tid [år]")
-plt.ylabel("Brennvidde (1/f)")
-
-plt.plot(t, focal_length(v[:,1,0], f_s))
-plt.xlabel("Tid [år]")
-plt.ylabel("Brennvidde (1/f)")
-
-plt.plot(t, focal_length(v[:,2,0], f_s))
-plt.xlabel("Tid [år]")
-plt.ylabel("Brennvidde (1/f)")
-plt.show()
+# plt.plot(t, focal_length(v[:,0,0], f_s))
+# plt.xlabel("Tid [år]")
+# plt.ylabel("Brennvidde (1/f)")
+#
+# plt.plot(t, focal_length(v[:,1,0], f_s))
+# plt.xlabel("Tid [år]")
+# plt.ylabel("Brennvidde (1/f)")
+#
+# plt.plot(t, focal_length(v[:,2,0], f_s))
+# plt.xlabel("Tid [år]")
+# plt.ylabel("Brennvidde (1/f)")
+# plt.show()
