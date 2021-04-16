@@ -15,7 +15,7 @@ def three_body_problem(N, T_end):
     #dt = 0.000001 #Tidssteg
     dt = 0.0000001 #Tidssteg DETTE BRUKER JEG NÅ
     #N = int(T_end/dt)
-    #T_end = N*dt #KAN FUNGERE?
+    T_end = N*dt #KAN FUNGERE?
     t = np.linspace(0, T_end, N)
 
     #N iterasjoner, 3 legemer, 2 dimensjoner (x,y)
@@ -118,10 +118,18 @@ def focal_length(lmbda_mu):
 
 
 N = 75000 #tidssteg
-T_end = 1 #år
 f_s = 980 #980 MHz
 
-#plot_position(N, T_end)
+'''
+#Lagrer arrayene
+r, v, t = three_body_problem(N, T_end)
+np.save('posisjon.npy', r)
+np.save('hastighet.npy', v)
+np.save('tid.npy', t)
+'''
+
+
+plot_position(N, T_end)
 # plot_doppler(f_s, N, T_end, 0)
 # plot_doppler(f_s, N, T_end, 1)
 # plot_doppler(f_s, N, T_end, 2)
