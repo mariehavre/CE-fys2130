@@ -115,3 +115,4 @@ star_names = ['Alfa Centauri A', 'Alfa Centauri B', 'Proxima Centauri']
 plot_position(r, N)
 plot_doppler(v, f_s, N)
 plot_focal_length(v, f_s)
+#heihei
